@@ -1,0 +1,17 @@
+# Importing Data
+storm <- read.csv('/Users/joe/Downloads/repdata-data-StormData.csv.bz2', header=T)
+
+# Duplicate dataset
+dmg <- storm
+
+# Changing invalid PROPDMGEXP and CROPDMGEXP to 0
+dmg$PROPDMGEXP <- ifelse(dmg$PROPDMGEXP %in% c("B", "h", "H", "K", "m", "M"),  as.character(dmg$PROPDMGEXP), "NONE")
+dmg$CROPDMGEXP <- ifelse(dmg$CROPDMGEXP %in% c("B", "k", "K", "m", "M"),  as.character(dmg$CROPDMGEXP), "NONE")
+
+# Multiplying PROPDMG by factor of 10 based on EXP letter
+dmg$PROPDMG <- dmg$PROPDMG * (10^9 * (dmg$PROPDMGEXP == "B") + 10^6 *(dmg$PROPDMGEXP %in% c("m", "M")) + 10^3 * (dmg$PROPDMGEXP %in% c("k", "K")) + 100 * (dmg$PROPDMGEXP %in% c("h", "H")))
+
+dmg$CROPDMG <- dmg$CROPDMG * (10^9 * (dmg$CROPDMGEXP == "B") + 10^6 *(dmg$CROPDMGEXP %in% c("m", "M")) + 10^3 * (dmg$CROPDMGEXP %in% c("k", "K")) + 100 * (dmg$CROPDMGEXP %in% c("h", "H")))
+
+# Making combination of PROP and CROP damage
+dmg$PROPandCROP <- dmg$PROPDMG + dmg$CROPDMG
